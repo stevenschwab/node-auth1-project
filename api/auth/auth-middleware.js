@@ -1,3 +1,4 @@
+const User = require('../users/users-model')
 /*
   If the user does not have a session saved in the server
 
@@ -34,8 +35,14 @@ function checkUsernameFree() {
     "message": "Invalid credentials"
   }
 */
-function checkUsernameExists() {
+async function checkUsernameExists(req, res, next) {
+  const [user] = User.findBy({ username: req.body.username })
 
+  if (user) {
+    next()
+  } else {
+    next({ status: 401, message: "Invalid credentials" })
+  }
 }
 
 /*
