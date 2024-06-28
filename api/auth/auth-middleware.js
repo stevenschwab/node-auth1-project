@@ -7,7 +7,7 @@ const User = require('../users/users-model')
     "message": "You shall not pass!"
   }
 */
-async function restricted(req, res, next) {
+function restricted(req, res, next) {
   if (req.session.user) {
     next()
   } else {
@@ -24,9 +24,9 @@ async function restricted(req, res, next) {
   }
 */
 async function checkUsernameFree(req, res, next) {
-  const user = User.findBy({ username: req.body.username })
+  const user = await User.findBy({ username: req.body.username })
 
-  if (user) {
+  if (user.length) {
     next({ status: 422, message: "Username taken" })
   } else {
     next()
@@ -42,7 +42,7 @@ async function checkUsernameFree(req, res, next) {
   }
 */
 async function checkUsernameExists(req, res, next) {
-  const [user] = User.findBy({ username: req.body.username })
+  const [user] = await User.findBy({ username: req.body.username })
 
   if (user) {
     next()
@@ -59,7 +59,7 @@ async function checkUsernameExists(req, res, next) {
     "message": "Password must be longer than 3 chars"
   }
 */
-async function checkPasswordLength(req, res, next) {
+function checkPasswordLength(req, res, next) {
   const { password } = req.body
 
   if (
@@ -68,6 +68,8 @@ async function checkPasswordLength(req, res, next) {
     password.trim().length <= 3
   ) {
     next({ status: 422, message: "Password must be longer than 3 chars" })
+  } else {
+    next()
   }
 }
 

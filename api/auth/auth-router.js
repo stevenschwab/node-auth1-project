@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const bcryptjs = require('bcryptjsjs')
+const bcryptjs = require('bcryptjs')
 const User = require('../users/users-model')
 const { 
   checkUsernameFree, 
@@ -16,10 +16,8 @@ router.post(
     const { username, password } = req.body
     const hash = bcryptjs.hashSync(password, 8)
     const newUser = { username, password: hash }
-    const result = User.add(newUser)
-    res.status(200).json({
-      message: `nice to have you, ${result.username}`
-    })
+    const result = await User.add(newUser)
+    res.status(200).json({ user_id: result.user_id, username: result.username })
   } catch (err) {
     next(err)
   }
@@ -58,7 +56,7 @@ router.post(
 
     if (user && bcryptjs.compareSync(password, user.password)) {
       req.session.user = user
-      res.json({ message: `Welcome, ${user.username}`})
+      res.json({ message: `Welcome ${user.username}!`})
     } else {
       next({ status: 401, message: "Invalid credentials" })
     }
