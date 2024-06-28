@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const bcrypt = require('bcryptjs')
+const bcryptjs = require('bcryptjsjs')
 const User = require('../users/users-model')
 const { 
   checkUsernameFree, 
@@ -14,7 +14,7 @@ router.post(
   async (req, res, next) => {
   try {
     const { username, password } = req.body
-    const hash = bcrypt.hashSync(password, 8)
+    const hash = bcryptjs.hashSync(password, 8)
     const newUser = { username, password: hash }
     const result = User.add(newUser)
     res.status(200).json({
@@ -56,7 +56,7 @@ router.post(
     const { username, password } = req.body
     const [user] = await User.findBy({ username })
 
-    if (user && bcrypt.compareSync(password, user.password)) {
+    if (user && bcryptjs.compareSync(password, user.password)) {
       req.session.user = user
       res.json({ message: `Welcome, ${user.username}`})
     } else {
@@ -84,7 +84,21 @@ router.post(
  */
 
 router.get('/logout', (req, res, next) => {
-  res.json({ message: 'logout working' })
+  if (req.session.user) {
+    const { username } = req.session.user
+    req.session.destroy(err => {
+      if (err) {
+        res.json({ message: `you can never leave, ${username}`})
+      } else {
+        res.set('Set-Cookie', 
+          'monkey=; SameSite=Strict; Path=/; Expires=Thu, 01 Jan 1970 00:00:00'
+        )
+        res.json({ message: "logged out" })
+      }
+    })
+  } else {
+    next({ status: 200, message: "no session" })
+  }
 })
 
 /**
