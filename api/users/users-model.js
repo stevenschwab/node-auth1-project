@@ -14,7 +14,9 @@ async function findBy(filter) {
 }
 
 async function findById(user_id) {
-  return await db('users').select('user_id', 'username').where('user_id', user_id).first()
+  return await db('users')
+    .select('user_id', 'username')
+    .where('user_id', user_id).first()
 }
 
 async function add(user) {
